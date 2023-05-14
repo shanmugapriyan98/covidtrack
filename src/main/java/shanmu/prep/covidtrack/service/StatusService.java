@@ -10,10 +10,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Service
 public class StatusService {
+    public String DATE_PATTERN_FROM_FORM = ("yyyy-MM-dd");
     public StatusService(){}
     public List<Status> setDate(Status[] statuses){
         List<Status> statusList = Arrays.asList(statuses);
@@ -29,21 +29,14 @@ public class StatusService {
 
     //TODO: Make this function also in the same way as get status between dates
     public List<Status> getLastWeekStatus(List<Status> statusList){
-        List<Status> resultList = new ArrayList<>();
         LocalDate localDate = LocalDate.of( 2020 , 9 , 10 );
-        Date date = Date.from(localDate.atStartOfDay(ZoneId.of("Africa/Tunis")).toInstant());
-        for(Status status:statusList){
-            long timeDiff = date.getTime() - status.getDateNew().getTime();
-            long days = TimeUnit.DAYS.convert(timeDiff, TimeUnit.MILLISECONDS);
-            if(days < 7 && days >=0){
-                resultList.add(status);
-            }
-        }
-        return resultList;
+        Date endDate = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date startDate = new Date(endDate.getTime() - (7*24*60*60*1000));
+        return getStatusWithFilters(statusList,"AZ", startDate, endDate);
     }
 
     public Date convertStringToDate(String pattern, String dateString){
-        Date dateNew= null;
+        Date dateNew;
         try {
             dateNew = new SimpleDateFormat(pattern).parse(dateString);
         } catch (ParseException e) {
@@ -52,20 +45,21 @@ public class StatusService {
         return dateNew;
     }
 
-    public List<Status> getStatusBetweenDates(List<Status> statusList, String state, String startDateStr, String endDateStr) {
-        String datePattern = ("yyyy-MM-dd");
-        Date startDate = convertStringToDate(datePattern, startDateStr);
-        Date endDate = convertStringToDate(datePattern, endDateStr);
-        return getStatus(statusList, state, startDate, endDate);
+    public List<Status> getStatusBetweenDates(List<Status> statusList, String state,
+                                              String startDateStr, String endDateStr){
+        Date startDate = convertStringToDate(DATE_PATTERN_FROM_FORM, startDateStr);
+        Date endDate = convertStringToDate(DATE_PATTERN_FROM_FORM, endDateStr);
+        return getStatusWithFilters(statusList, state, startDate, endDate);
     }
 
-    public List<Status> getStatus(List<Status> statusList, String state, Date startDate, Date endDate){
+    public List<Status> getStatusWithFilters(List<Status> statusList, String state, Date startDate, Date endDate) {
         List<Status> resultList = new ArrayList<>();
-        for(Status status:statusList){
+        for(Status status: statusList){
             long startTime = startDate.getTime();
             long endTime = endDate.getTime();
             long statusTime = status.getDateNew().getTime();
-            if((statusTime >= startTime) && (statusTime <= endTime)){
+            if((statusTime >= startTime) && (statusTime <= endTime) &&
+                    (status.getState().equals(state))){
                 resultList.add(status);
             }
         }
