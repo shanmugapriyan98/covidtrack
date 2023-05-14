@@ -77,7 +77,7 @@ public class Status {
 
     public void setDateNew() throws ParseException {
         dateNew= new SimpleDateFormat("yyyyMMdd").parse(this.date);
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/YYYY");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
         this.date = simpleDateFormat.format(dateNew);
     }
 
