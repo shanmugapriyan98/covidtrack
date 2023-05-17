@@ -30,7 +30,7 @@ public class StatusService {
     //TODO: Make this function also in the same way as get status between dates
     public List<Status> getLastWeekStatus(List<Status> statusList){
         LocalDate localDate = LocalDate.of( 2020 , 9 , 10 );
-        Date endDate = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date endDate = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant()); //should be today but as there is no data,using this
         Date startDate = new Date(endDate.getTime() - (7*24*60*60*1000));
         return getStatusWithFilters(statusList,"AZ", startDate, endDate);
     }
